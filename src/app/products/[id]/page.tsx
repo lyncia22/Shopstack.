@@ -1,6 +1,6 @@
 "use client";
 
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import Image from "next/image";
 import { products } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
@@ -8,13 +8,17 @@ import { useCart } from "@/context/cart-context";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Minus, Plus } from "lucide-react";
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default function ProductDetailPage() {
+  const params = useParams<{ id: string }>();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const product = products.find((p) => p.id === params.id);
+
+  const product = useMemo(() => {
+    return products.find((p) => p.id === params.id);
+  }, [params.id]);
 
   if (!product) {
     notFound();
