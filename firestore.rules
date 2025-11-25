@@ -1,0 +1,163 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model. All user-specific data, such as
+ * profiles, orders, and order items, is nested within a user-specific document tree (/users/{userId}/...).
+ * This ensures users can only access their own information. Data intended for public consumption, like the
+ * product catalog, is stored in a separate top-level collection.
+ *
+ * Data Structure: The data is organized into two main branches:
+ * 1. /products/{productId}: A top-level collection for all product information, accessible to everyone for reading.
+ * 2. /users/{userId}: A top-level collection where each document represents a user. All private, user-specific
+ *    data (like orders) is stored in subcollections under this path.
+ *
+ * Key Security Decisions:
+ * - User Isolation: A user's access is strictly confined to their own document tree under /users/{their_own_userId}.
+ * - No User Listing: It is not possible to query or list all documents in the `/users` collection.
+ * - Product Write Protection: Writes to the public `/products` collection are currently disabled pending the
+ *   implementation of an admin role system. This is a secure default to prevent vandalism.
+ * - Default Deny: Any path not explicitly matched is inaccessible.
+ *
+ * Denormalization for Authorization: The rules leverage the path structure to enforce ownership, avoiding costly
+ * `get()` calls. For example, a rule on `/users/{userId}/orders/{orderId}` simply checks that the requester's
+ * UID matches the `userId` in the path. This is fast, secure, and scalable. Key relational fields (e.g., `userId`
+ * in an Order document) are also validated against the path on creation to ensure data integrity.
+ *
+ * Structural Segregation: The separation of public data (`/products`) from private, user-owned data (`/users`)
+ * is a deliberate design choice. It simplifies security rules and allows for safe public list queries on the
+ * products collection without exposing any private user information.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    //----------------------------------------------------------------
+    // Helper Functions
+    //----------------------------------------------------------------
+
+    /**
+     * Returns true if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Returns true if the authenticated user's UID matches the provided userId.
+     * This is the core of the user-ownership model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Returns true if the user is the owner of an existing document.
+     * Used for safe update and delete operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates that the new user document correctly sets its own ID.
+     */
+    function isValidNewUserDocument(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Ensures the user ID within a user document is never changed.
+     */
+    function isImmutableUserDocument() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates that a new order document is correctly linked to its parent user.
+     */
+    function isValidNewOrderDocument(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Ensures the userId link on an order document is never changed.
+     */
+    function isImmutableOrderDocument() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    /**
+     * Validates that a new order item is correctly linked to its parent order.
+     */
+    function isValidNewOrderItemDocument(orderId) {
+      return request.resource.data.orderId == orderId;
+    }
+
+    /**
+     * Ensures the orderId link on an order item is never changed.
+     */
+    function isImmutableOrderItemDocument() {
+      return request.resource.data.orderId == resource.data.orderId;
+    }
+
+    /**
+     * @description Publicly readable product catalog. Writes are disabled until an admin role system is defined.
+     * @path /products/{productId}
+     * @allow (get) Any user, signed in or not, can view a product.
+     * @deny (create) A signed-in user attempts to create a new product.
+     * @principle Public read access for catalog data, with writes locked down for security.
+     */
+    match /products/{productId} {
+      allow get: if true;
+      allow list: if true;
+      // CRITICAL: Cannot implement admin-only writes as no admin or ownership system is defined in the IR.
+      // Writes are disabled as a secure default.
+      allow create: if false; // TODO: Add admin role validation once the schema is updated with an admin system.
+      allow update: if false; // TODO: Add admin role validation once the schema is updated with an admin system.
+      allow delete: if false; // TODO: Add admin role validation once the schema is updated with an admin system.
+    }
+
+    /**
+     * @description Manages user profile documents. A user can create, read, and update their own document.
+     * @path /users/{userId}
+     * @allow (create) A new user (auth.uid: 'user_abc') creates their profile at `/users/user_abc`.
+     * @deny (get) A user (auth.uid: 'user_xyz') tries to read `/users/user_abc`.
+     * @principle Enforces self-creation and ownership of a user's root document.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Explicitly prevent listing of all user documents.
+      allow create: if isOwner(userId) && isValidNewUserDocument(userId);
+      allow update: if isExistingOwner(userId) && isImmutableUserDocument();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description User's personal order history. Only accessible by the user who owns the orders.
+     * @path /users/{userId}/orders/{orderId}
+     * @allow (list) A user (auth.uid: 'user_abc') lists their own orders at `/users/user_abc/orders`.
+     * @deny (get) A user (auth.uid: 'user_xyz') tries to read an order at `/users/user_abc/orders/order_123`.
+     * @principle Restricts access to a user's own data tree using path-based ownership.
+     */
+    match /users/{userId}/orders/{orderId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidNewOrderDocument(userId);
+      allow update: if isExistingOwner(userId) && isImmutableOrderDocument();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Individual items within a user's order. Inherits ownership from the user path.
+     * @path /users/{userId}/orders/{orderId}/orderItems/{orderItemId}
+     * @allow (get) A user (auth.uid: 'user_abc') reads an item from their own order.
+     * @deny (list) A user (auth.uid: 'user_xyz') tries to list items from another user's order.
+     * @principle Validates relational integrity by ensuring order items are created within the correct order.
+     */
+    match /users/{userId}/orders/{orderId}/orderItems/{orderItemId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidNewOrderItemDocument(orderId);
+      allow update: if isExistingOwner(userId) && isImmutableOrderItemDocument();
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
