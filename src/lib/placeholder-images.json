@@ -119,6 +119,54 @@
       "description": "A gripping mystery thriller novel.",
       "imageUrl": "https://images.unsplash.com/photo-1583993899879-09c31345903b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtystZXJ5JTIwYm9va3xlbnwwfHx8fDE3NjQwNjA0Mjl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "mystery book"
+    },
+    {
+      "id": "prod_021",
+      "description": "A 27-inch 4K UHD monitor for stunning visuals.",
+      "imageUrl": "https://images.unsplash.com/photo-1629896796525-8a29b4b0e502?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx4ayUyMG1vbml0b3J8ZW58MHx8fHwxNzY0MDYyMjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "4k monitor"
+    },
+    {
+      "id": "prod_022",
+      "description": "A tactile mechanical keyboard for typing and gaming.",
+      "imageUrl": "https://images.unsplash.com/photo-1618384887924-2c84b162c79a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtZWNoYW5pY2FsJTIwa2V5Ym9hcmR8ZW58MHx8fHwxNzY0MDYyMjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mechanical keyboard"
+    },
+    {
+      "id": "prod_023",
+      "description": "Modern sunglasses with full UV protection.",
+      "imageUrl": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdW5nbGFzc2VzfGVufDB8fHx8MTc2NDA2MjIwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sunglasses fashion"
+    },
+    {
+      "id": "prod_024",
+      "description": "A comfortable fleece-lined hoodie.",
+      "imageUrl": "https://images.unsplash.com/photo-1556112257-9a91353b9952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxob29kaWV8ZW58MHx8fHwxNzY0MDYyMjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hoodie apparel"
+    },
+    {
+      "id": "prod_025",
+      "description": "A luxurious and absorbent bath towel set.",
+      "imageUrl": "https://images.unsplash.com/photo-1600294121408-c0734a33e9d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiYXRoJTIwdG93ZWx8ZW58MHx8fHwxNzY0MDYyMjAzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bath towel"
+    },
+    {
+      "id": "prod_026",
+      "description": "A stylish organizer to keep your desk tidy.",
+      "imageUrl": "https://images.unsplash.com/photo-1484755194998-1f2493393bdf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZXNrJTIwb3JnYW5pemVyfGVufDB8fHx8MTc2NDA2MjIwM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "desk organizer"
+    },
+    {
+      "id": "prod_027",
+      "description": "A cookbook full of easy recipes for beginners.",
+      "imageUrl": "https://images.unsplash.com/photo-1495195129352-a2324e4af32f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZWNpcGUlMjBib29rfGVufDB8fHx8MTc2NDA2MjIwM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "recipe book"
+    },
+    {
+      "id": "prod_028",
+      "description": "A guide to mindfulness and living in the present.",
+      "imageUrl": "https://images.unsplash.com/photo-1590212151009-a1d5a716ef20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtaW5kZnVsbmVzcyUyMGJvb2t8ZW58MHx8fHwxNzY0MDYyMjAzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mindfulness book"
     }
   ]
 }
