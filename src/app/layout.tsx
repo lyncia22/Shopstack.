@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CartProvider } from "@/context/cart-context";
 import { Toaster } from "@/components/ui/toaster";
+import { FirebaseClientProvider } from "@/firebase/client-provider";
 
 export const metadata: Metadata = {
   title: "ShopStack",
@@ -27,14 +28,16 @@ export default function RootLayout({
         />
       </head>
       <body className={cn("font-body antialiased flex flex-col min-h-screen")}>
-        <CartProvider>
-          <Header />
-          <main className="flex-1 bg-background">
-            {children}
-          </main>
-          <Footer />
-          <Toaster />
-        </CartProvider>
+        <FirebaseClientProvider>
+          <CartProvider>
+            <Header />
+            <main className="flex-1 bg-background">
+              {children}
+            </main>
+            <Footer />
+            <Toaster />
+          </CartProvider>
+        </FirebaseClientProvider>
       </body>
     </html>
   );
