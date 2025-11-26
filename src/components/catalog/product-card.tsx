@@ -42,6 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
               src={product.imageUrl}
               alt={product.name}
               fill
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 23vw"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               data-ai-hint={product.imageHint}
             />
