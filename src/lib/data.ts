@@ -1,3 +1,4 @@
+
 import type { Product } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -291,3 +292,5 @@ export const products: Product[] = [
     stock: 85,
   },
 ];
+
+    
