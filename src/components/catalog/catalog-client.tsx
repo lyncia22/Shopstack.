@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from 'next/navigation';
 import type { Product } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,9 +22,18 @@ const sortOptions = [
 ];
 
 export function CatalogClient({ products }: CatalogClientProps) {
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl || "All");
   const [sortOption, setSortOption] = useState("relevance");
+
+  useEffect(() => {
+    if (categoryFromUrl && categories.includes(categoryFromUrl)) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products;

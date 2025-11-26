@@ -22,7 +22,7 @@ export function ProductCarousel({ category, products }: ProductCarouselProps) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl md:text-3xl font-bold font-headline">{category}</h2>
         <Button asChild variant="link" className="text-primary">
-          <Link href="#">
+          <Link href={`/catalog?category=${encodeURIComponent(category)}`}>
             View All <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </Button>
