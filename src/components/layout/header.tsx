@@ -29,6 +29,7 @@ export function Header() {
   
   const navLinks = [
     { href: "/", label: "Home" },
+    { href: "/catalog", label: "Catalog" },
     ...(user ? [] : [{ href: "/login", label: "Login" }]),
   ];
 
