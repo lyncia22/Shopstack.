@@ -1,7 +1,7 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
+require('dotenv').config();
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -30,6 +30,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  rewrites: async () => ({
+    beforeFiles: [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*',
+      },
+    ],
+  }),
 };
 
 export default nextConfig;
