@@ -1,12 +1,11 @@
 // server.js
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
-const dotenv = require('dotenv');
 const admin = require('firebase-admin');
-
-dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -16,32 +15,23 @@ app.use(morgan('dev'));
 // ---------------------
 // Firebase Admin Setup
 // ---------------------
-if (
-  process.env.FIREBASE_PROJECT_ID &&
-  process.env.FIREBASE_CLIENT_EMAIL &&
-  process.env.FIREBASE_PRIVATE_KEY
-) {
-  const serviceAccount = {
-    type: process.env.FIREBASE_TYPE || 'service_account',
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-    auth_uri: process.env.FIREBASE_AUTH_URI,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
-  };
 
+// --- ADD THIS DEBUGGING BLOCK ---
+const fs = require('fs');
+const path = require('path');
+console.log('Checking for service account key at:', path.resolve(__dirname, './serviceAccountKey.json'));
+console.log('Does file exist?', fs.existsSync(path.resolve(__dirname, './serviceAccountKey.json')));
+// --- END DEBUGGING BLOCK ---
+
+try {
+  const serviceAccount = require('./serviceAccountKey.json');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
-
-  console.log('Firebase Admin initialized.');
-} else {
+  console.log('Firebase Admin initialized successfully.');
+} catch (error) {
   console.warn(
-    'Firebase environment variables missing. Auth will not work until configured.'
+    'Could not initialize Firebase Admin. Ensure serviceAccountKey.json is in the src/ folder. Auth will not work.'
   );
 }
 

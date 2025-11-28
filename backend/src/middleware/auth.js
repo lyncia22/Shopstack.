@@ -1,29 +1,24 @@
-const { adminAuth } = require('../config/firebase');
+const admin = require('firebase-admin');
 
-async function verifyFirebaseToken(req, res, next) {
-  const idToken = req.headers.authorization?.split('Bearer ')[1];
+const verifyFirebaseToken = async (req, res, next) => {
+  console.log('--- Verifying Firebase Token ---');
+  const authHeader = req.headers.authorization;
 
-  if (!idToken) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.error('Auth Error: No Bearer token was provided.');
+    return res.status(401).json({ error: 'Unauthorized: No token provided.' });
   }
 
-  if (!adminAuth) {
-    return res.status(503).json({ error: 'Firebase Admin not initialized' });
-  }
-
+  const token = authHeader.split(' ')[1];
   try {
-    // This line asks Firebase to verify the token
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
-    
-    // The token is valid! Attach user info to the request object
+    const decodedToken = await admin.auth().verifyIdToken(token);
     req.user = decodedToken;
-    
-    // Continue to the next function (the actual route logic)
-    next();
+    console.log('Token verified successfully for user:', decodedToken.email);
+    next(); // Token is valid, proceed to the next step (order creation)
   } catch (error) {
-    // The token was invalid
-    return res.status(403).json({ error: 'Unauthorized: Invalid token' });
+    console.error('Auth Error: Token is invalid.', error.message);
+    return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
   }
-}
+};
 
 module.exports = verifyFirebaseToken;

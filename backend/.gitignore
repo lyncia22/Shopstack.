@@ -1,4 +1,8 @@
-node_modules/
+# Dependencies
+node_modules
+
+# Environment variables
 .env
-serviceAccountKey.json
-*.log
+
+# Firebase service account key
+src/serviceAccountKey.json

@@ -14,29 +14,34 @@ const router = express.Router();
 
 // create order: expect items [{productId, quantity}] and shipping (optional)
 router.post('/', verifyFirebaseToken, async (req, res) => {
-  const session = await mongoose.startSession();
   try {
-    session.startTransaction();
+    // Log the incoming request body from the frontend
+    console.log('Received new order request from frontend with body:', JSON.stringify(req.body, null, 2));
+
     const { items = [], shipping = {} } = req.body;
     let total = 0;
     const orderItems = [];
 
+    // First, validate all products and calculate the total
     for (const it of items) {
-      const prod = await Product.findById(it.productId).session(session);
+      const prod = await Product.findById(it.productId);
       if (!prod) throw new Error('Product missing');
       if (prod.stock < it.quantity) throw new Error(`Out of stock: ${prod.name || prod._id}`);
-      prod.stock -= it.quantity;
-      await prod.save({ session });
       orderItems.push({ product: prod._id, quantity: it.quantity, priceCents: prod.priceCents });
       total += prod.priceCents * it.quantity;
     }
 
-    const docs = await Order.create([{ userId: req.user?.uid || 'anon', items: orderItems, totalCents: total, shipping }], { session });
-    const order = docs[0];
-    await session.commitTransaction();
-    session.endSession();
+    // Create and save the order to the database
+    const order = new Order({ userId: req.user?.uid || 'anon', items: orderItems, totalCents: total, shipping });
+    await order.save();
+    console.log(`SUCCESS: Order ${order._id} saved to database.`);
 
-    // Payment: use Stripe if configured, otherwise return a mocked clientSecret
+    // After the order is saved, update the stock for each product
+    for (const it of items) {
+      await Product.updateOne({ _id: it.productId }, { $inc: { stock: -it.quantity } });
+    }
+    console.log('Product stock updated.');
+
     let clientSecret = null;
     if (stripe) {
       const paymentIntent = await stripe.paymentIntents.create({
@@ -51,18 +56,18 @@ router.post('/', verifyFirebaseToken, async (req, res) => {
       console.log('Mock payment used for order', order._id.toString());
     }
 
-    // Send confirmation email (best-effort)
-    const recipientEmail = req.user?.email || 'customer@example.com';
-    console.log('Sending order confirmation email to:', recipientEmail);
-    sendOrderEmail(recipientEmail, order)
-      .then(() => console.log('Order confirmation email sent successfully'))
-      .catch((error) => console.error('Error sending order confirmation email:', error));
+    // Send confirmation email and wait for it to complete
+    try {
+      const recipientEmail = req.user?.email || 'customer@example.com';
+      await sendOrderEmail(recipientEmail, order);
+      console.log("Order confirmation email sent successfully to:", recipientEmail);
+    } catch (emailError) {
+      console.error("Order confirmation email failed to send:", emailError);
 
+    }
 
     res.json({ order, clientSecret });
   } catch (err) {
-    await session.abortTransaction().catch(()=>{});
-    session.endSession();
     console.error(err);
     res.status(400).json({ error: err.message });
   }
