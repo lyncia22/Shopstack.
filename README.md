@@ -14,7 +14,7 @@ ShopStack is a feature‑rich mini e‑commerce platform built with a modern, fu
 - Language: [TypeScript](https://www.typescriptlang.org/)  
 - Styling: [Tailwind CSS](https://tailwindcss.com/)  
 - UI Components: [ShadCN/UI](https://ui.shadcn.com/)  
-- Backend & Database: [Firebase](https://firebase.google.com/) (Authentication and Firestore) – optional (see Backend Setup below)  
+- Backend & Database: [ MongoDB andFirebase](https://firebase.google.com/) 
 - Form Management: [React Hook Form](https://react-hook-form.com/) & [Zod](https://zod.dev/) for validation  
 
 ## Getting Started
